@@ -46,7 +46,7 @@ app.*.map.json
 
 
 
-//environment variables
+#environment variables
 .env
 
 # ignore all env variants but keep example
