@@ -274,7 +274,7 @@ class _NutrientItem extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(DesignTokens.radiusSM),
           ),
           child: Center(
@@ -327,10 +327,10 @@ class _MicronutrientChip extends StatelessWidget {
         vertical: DesignTokens.spaceXS,
       ),
       decoration: BoxDecoration(
-        color: DesignTokens.primaryGreen.withOpacity(0.1),
+        color: DesignTokens.primaryGreen.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(DesignTokens.radiusSM),
         border: Border.all(
-          color: DesignTokens.primaryGreen.withOpacity(0.3),
+          color: DesignTokens.primaryGreen.withValues(alpha: 0.3),
         ),
       ),
       child: Text(

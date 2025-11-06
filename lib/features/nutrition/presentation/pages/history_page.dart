@@ -142,7 +142,7 @@ class _MobileHistoryList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(DesignTokens.spaceMD),
       itemCount: results.length,
-      separatorBuilder: (_, __) => const SizedBox(height: DesignTokens.spaceSM),
+      separatorBuilder: (_, unused) => const SizedBox(height: DesignTokens.spaceSM),
       itemBuilder: (context, index) {
         final result = results[index];
         return _HistoryCard(result: result);
@@ -196,7 +196,7 @@ class _HistoryCard extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: DesignTokens.primaryGreen.withOpacity(0.1),
+                    backgroundColor: DesignTokens.primaryGreen.withValues(alpha: 0.1),
                     child: Icon(
                       Icons.fastfood,
                       color: DesignTokens.primaryGreen,

@@ -76,7 +76,7 @@ class _FoodItemCardState extends State<FoodItemCard>
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: DesignTokens.primaryGreen.withOpacity(0.1),
+                          color: DesignTokens.primaryGreen.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(DesignTokens.radiusSM),
                         ),
                         child: const Icon(
@@ -194,7 +194,7 @@ class _FoodItemCardState extends State<FoodItemCard>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(DesignTokens.radiusSM),
           ),
           child: Center(

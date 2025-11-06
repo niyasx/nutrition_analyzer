@@ -9,7 +9,6 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: DesignTokens.primaryGreen,
         brightness: Brightness.light,
-        background: DesignTokens.backgroundLight,
         surface: DesignTokens.surfaceLight,
       ),
       scaffoldBackgroundColor: DesignTokens.backgroundLight,
@@ -78,7 +77,6 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: DesignTokens.primaryGreen,
         brightness: Brightness.dark,
-        background: DesignTokens.backgroundDark,
         surface: DesignTokens.surfaceDark,
       ),
       scaffoldBackgroundColor: DesignTokens.backgroundDark,

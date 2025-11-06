@@ -59,14 +59,16 @@ class _TabletLayout extends StatelessWidget {
           children: [
             Expanded(
               flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: DesignTokens.spaceXL),
-                  const _Header(),
-                  const SizedBox(height: DesignTokens.space2XL),
-                  const _ActionButtons(),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: DesignTokens.spaceXL),
+                    const _Header(),
+                    const SizedBox(height: DesignTokens.space2XL),
+                    const _ActionButtons(),
+                  ],
+                ),
               ),
             ),
             const SizedBox(width: DesignTokens.spaceLG),
@@ -92,7 +94,7 @@ class _Header extends StatelessWidget {
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: DesignTokens.primaryGreen.withOpacity(0.1),
+            color: DesignTokens.primaryGreen.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(DesignTokens.radiusXL),
           ),
           child: const Icon(
@@ -181,6 +183,16 @@ class _RecentAnalysisSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    HistoryBloc? _historyBloc;
+    try {
+      _historyBloc = context.read<HistoryBloc>();
+    } catch (_) {
+      _historyBloc = null;
+    }
+    if (_historyBloc == null) {
+      return _buildEmptyState(context);
+    }
+
     return BlocBuilder<HistoryBloc, HistoryState>(
       builder: (context, state) {
         if (state is HistoryLoaded && state.results.isNotEmpty) {
@@ -197,13 +209,13 @@ class _RecentAnalysisSection extends StatelessWidget {
               Expanded(
                 child: ListView.separated(
                   itemCount: state.results.take(5).length,
-                  separatorBuilder: (_, __) => const SizedBox(height: DesignTokens.spaceSM),
+                  separatorBuilder: (_, unused) => const SizedBox(height: DesignTokens.spaceSM),
                   itemBuilder: (context, index) {
                     final result = state.results[index];
                     return Card(
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: DesignTokens.primaryGreen.withOpacity(0.1),
+                          backgroundColor: DesignTokens.primaryGreen.withValues(alpha: 0.1),
                           child: const Icon(
                             Icons.fastfood,
                             color: DesignTokens.primaryGreen,
@@ -230,40 +242,7 @@ class _RecentAnalysisSection extends StatelessWidget {
           );
         }
 
-        return Container(
-          padding: const EdgeInsets.all(DesignTokens.spaceLG),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(DesignTokens.radiusMD),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-            ),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                Icons.analytics_outlined,
-                size: 48,
-                color: Theme.of(context).colorScheme.outline,
-              ),
-              const SizedBox(height: DesignTokens.spaceMD),
-              Text(
-                'No analysis history yet',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-              ),
-              const SizedBox(height: DesignTokens.spaceSM),
-              Text(
-                'Start by taking a photo of your meal',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        );
+        return _buildEmptyState(context);
       },
     );
   }
@@ -281,5 +260,42 @@ class _RecentAnalysisSection extends StatelessWidget {
     } else {
       return '${date.day}/${date.month}';
     }
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(DesignTokens.spaceLG),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(DesignTokens.radiusMD),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.analytics_outlined,
+            size: 48,
+            color: Theme.of(context).colorScheme.outline,
+          ),
+          const SizedBox(height: DesignTokens.spaceMD),
+          Text(
+            'No analysis history yet',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+          ),
+          const SizedBox(height: DesignTokens.spaceSM),
+          Text(
+            'Start by taking a photo of your meal',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 }

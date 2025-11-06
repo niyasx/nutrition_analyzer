@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nutrition_app/features/nutrition/domain/entities/analysis_result.dart';
 import 'package:nutrition_app/features/nutrition/data/models/food_item_model.dart';

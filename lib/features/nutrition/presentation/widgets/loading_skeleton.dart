@@ -75,7 +75,7 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
                 width: double.infinity,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300.withOpacity(_animation.value),
+                  color: Colors.grey.shade300.withValues(alpha: _animation.value),
                   borderRadius: BorderRadius.circular(DesignTokens.radiusMD),
                 ),
               );
@@ -101,7 +101,7 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
                                   width: 50,
                                   height: 50,
                                   decoration: BoxDecoration(
-                                    color: Colors.grey.shade300.withOpacity(_animation.value),
+                                    color: Colors.grey.shade300.withValues(alpha: _animation.value),
                                     borderRadius: BorderRadius.circular(DesignTokens.radiusSM),
                                   ),
                                 ),
@@ -114,7 +114,7 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
                                         height: 16,
                                         width: double.infinity,
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade300.withOpacity(_animation.value),
+                                          color: Colors.grey.shade300.withValues(alpha: _animation.value),
                                           borderRadius: BorderRadius.circular(DesignTokens.radiusXS),
                                         ),
                                       ),
@@ -123,7 +123,7 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
                                         height: 12,
                                         width: 150,
                                         decoration: BoxDecoration(
-                                          color: Colors.grey.shade300.withOpacity(_animation.value),
+                                          color: Colors.grey.shade300.withValues(alpha: _animation.value),
                                           borderRadius: BorderRadius.circular(DesignTokens.radiusXS),
                                         ),
                                       ),
@@ -138,8 +138,8 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
                               children: List.generate(4, (i) => Container(
                                     width: 60,
                                     height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade300.withOpacity(_animation.value),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade300.withValues(alpha: _animation.value),
                                       borderRadius: BorderRadius.circular(DesignTokens.radiusSM),
                                     ),
                                   )),

@@ -257,7 +257,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: widget.hintText,
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
                 border: InputBorder.none,
               ),
               onChanged: widget.onSearch,

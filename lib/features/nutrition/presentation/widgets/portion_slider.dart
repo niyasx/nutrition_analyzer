@@ -50,7 +50,7 @@ class _PortionSliderState extends State<PortionSlider> {
                 vertical: DesignTokens.spaceXS,
               ),
               decoration: BoxDecoration(
-                color: DesignTokens.primaryGreen.withOpacity(0.1),
+                color: DesignTokens.primaryGreen.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(DesignTokens.radiusSM),
               ),
               child: Text(
@@ -70,9 +70,9 @@ class _PortionSliderState extends State<PortionSlider> {
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: DesignTokens.primaryGreen,
-                  inactiveTrackColor: DesignTokens.primaryGreen.withOpacity(0.2),
+                  inactiveTrackColor: DesignTokens.primaryGreen.withValues(alpha: 0.2),
                   thumbColor: DesignTokens.primaryGreen,
-                  overlayColor: DesignTokens.primaryGreen.withOpacity(0.1),
+                  overlayColor: DesignTokens.primaryGreen.withValues(alpha: 0.1),
                   trackHeight: 4,
                   thumbShape: const RoundSliderThumbShape(
                     enabledThumbRadius: 8,
