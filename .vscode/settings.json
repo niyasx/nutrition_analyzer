@@ -1,0 +1,12 @@
+{
+    "workbench.activityBar.orientation": "vertical",
+    "editor.minimap.side": "left",
+    "workbench.sideBar.location": "left",
+    "workbench.editor.openPositioning": "left",
+    "workbench.editor.tabActionLocation": "left",
+    "terminal.integrated.tabs.location": "left",
+    "gitlens.statusBar.alignment": "left",
+    "gitlens.blame.heatmap.location": "left",
+    "gitlens.mode.statusBar.alignment": "left",
+    "workbench.editor.splitInGroupLayout": "vertical"
+}

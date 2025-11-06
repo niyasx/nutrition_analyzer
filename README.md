@@ -37,3 +37,35 @@ A cutting-edge Flutter mobile application that uses AI-powered image analysis th
 ```bash
 git clone https://github.com/yourusername/nutrition_app.git
 cd nutrition_app
+```
+
+2. **Install dependencies**
+```bash
+flutter pub get
+```
+
+3. **Set up environment variables**
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and add your Gemini API key:
+```bash
+GEMINI_API_KEY=your_actual_gemini_api_key_here
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+ENVIRONMENT=development
+```
+
+4. **Generate code (if needed)**
+```bash
+flutter packages pub run build_runner build
+```
+
+5. **Run the app**
+```bash
+flutter run
+```
+
+## 🏗️ Architecture
+
+### Project Structure
