@@ -96,6 +96,10 @@ class NutritionAnalysisBloc
         await _nutritionRepository.saveAnalysisResult(currentState.result);
         emit(NutritionAnalysisSaved(result: currentState.result));
         log('Analysis saved successfully');
+        
+        // Trigger history refresh after saving
+        // Note: This requires access to HistoryBloc, which should be done via context
+        // For now, we'll emit a state that the UI can listen to
       } catch (e) {
         log('Failed to save analysis: $e');
         emit(NutritionAnalysisError(

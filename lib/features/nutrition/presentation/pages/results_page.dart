@@ -6,6 +6,8 @@ import 'package:nutrition_app/core/theme/design_tokens.dart';
 import 'package:nutrition_app/features/nutrition/presentation/bloc/nutrition_analysis_bloc.dart';
 import 'package:nutrition_app/features/nutrition/presentation/bloc/nutrition_analysis_event.dart';
 import 'package:nutrition_app/features/nutrition/presentation/bloc/nutrition_analysis_state.dart';
+import 'package:nutrition_app/features/nutrition/presentation/bloc/history_bloc.dart';
+import 'package:nutrition_app/features/nutrition/presentation/bloc/history_event.dart';
 import 'package:nutrition_app/features/nutrition/presentation/widgets/loading_skeleton.dart';
 import 'package:nutrition_app/features/nutrition/presentation/widgets/nutrition_card.dart';
 import 'package:nutrition_app/features/nutrition/presentation/widgets/food_item_card.dart';
@@ -27,11 +29,16 @@ class ResultsPage extends StatelessWidget {
         actions: [
           BlocBuilder<NutritionAnalysisBloc, NutritionAnalysisState>(
             builder: (context, state) {
-              if (state is NutritionAnalysisSuccess) {
+              if (state is NutritionAnalysisSuccess ||
+                  state is NutritionAnalysisSaved) {
                 return IconButton(
                   icon: const Icon(Icons.save),
                   onPressed: () {
-                    context.read<NutritionAnalysisBloc>().add(const SaveAnalysis());
+                    context
+                        .read<NutritionAnalysisBloc>()
+                        .add(const SaveAnalysis());
+                    // Refresh history after saving
+                    context.read<HistoryBloc>().add(const RefreshHistory());
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Analysis saved!')),
                     );
@@ -47,10 +54,15 @@ class ResultsPage extends StatelessWidget {
         builder: (context, state) {
           if (state is NutritionAnalysisLoading) {
             return const LoadingSkeleton();
-          } else if (state is NutritionAnalysisSuccess) {
+          } else if (state is NutritionAnalysisSuccess ||
+              state is NutritionAnalysisSaved) {
+            final analysisResult = state is NutritionAnalysisSuccess
+                ? state.result
+                : (state as NutritionAnalysisSaved).result;
+
             return ResponsiveLayout(
-              mobile: _MobileResultsLayout(result: state.result),
-              tablet: _TabletResultsLayout(result: state.result),
+              mobile: _MobileResultsLayout(result: analysisResult),
+              tablet: _TabletResultsLayout(result: analysisResult),
             );
           } else if (state is NutritionAnalysisError) {
             return CustomErrorWidget(

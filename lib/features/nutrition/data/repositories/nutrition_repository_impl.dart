@@ -21,9 +21,18 @@ class NutritionRepositoryImpl implements NutritionRepository {
   @override
   Future<Either<Failure, AnalysisResult>> analyzeImage(String imagePath) async {
     try {
-      // Use mock for development - replace with real API call
-      final response = await apiClient.mockAnalyzeImage(imagePath);
-      // final response = await apiClient.analyzeImage(imagePath);
+      // Use real API call
+      log('=== API CALL STARTED ===');
+      log('Image path: $imagePath');
+      final response = await apiClient.analyzeImage(imagePath);
+      log('=== API RESPONSE RECEIVED ===');
+      log('Response: ${response.toString()}');
+      log('Food items count: ${response.foodItems.length}');
+      for (var i = 0; i < response.foodItems.length; i++) {
+        final item = response.foodItems[i];
+        log('Food item $i: ${item.name} - Calories: ${item.nutritionData.calories}');
+      }
+      log('=== API CALL COMPLETED ===');
       
       final foodItems = response.foodItems
           .map((model) => FoodItemModel.fromGeminiJson({

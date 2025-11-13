@@ -34,7 +34,7 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(DesignTokens.spaceMD),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

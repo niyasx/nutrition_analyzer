@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 // import 'package:nutrition_app/core/error/failures.dart';
 import 'package:nutrition_app/features/nutrition/data/models/gemini_response_model.dart';
@@ -22,11 +23,7 @@ class GeminiApiClient {
       },
     );
 
-    // Add API key from environment
-    final apiKey = dotenv.env['GEMINI_API_KEY'];
-    if (apiKey != null) {
-      _dio.options.headers['Authorization'] = 'Bearer $apiKey';
-    }
+    // API key will be passed as query parameter in the request
 
     // Add logging interceptor
     _dio.interceptors.add(
@@ -38,16 +35,41 @@ class GeminiApiClient {
     );
   }
 
+  // Helper function to encode base64 in isolate to prevent main thread blocking
+  static String _encodeBase64(List<int> bytes) {
+    return base64Encode(bytes);
+  }
+
   Future<GeminiResponseModel> analyzeImage(String imagePath) async {
     try {
-      // Convert image to base64
+      log('=== API CALL STARTED ===');
+      log('Image path: $imagePath');
+      print('=== API CALL STARTED ===');
+      print('Image path: $imagePath');
+      
+      // Read image bytes asynchronously
       final imageFile = File(imagePath);
+      log('Reading image file...');
       final imageBytes = await imageFile.readAsBytes();
-      final base64Image = base64Encode(imageBytes);
+      log('Image read: ${imageBytes.length} bytes');
+      print('Image read: ${imageBytes.length} bytes');
+      
+      // Encode to base64 in isolate to prevent main thread blocking
+      log('Encoding image to base64 in isolate...');
+      print('Encoding image to base64 in isolate...');
+      final base64Image = await compute(_encodeBase64, imageBytes);
+      log('Base64 encoding completed: ${base64Image.length} characters');
+      print('Base64 encoding completed: ${base64Image.length} characters');
 
-      // TODO: Replace with actual Gemini API endpoint structure
+      // Get API key from environment
+      final apiKey = dotenv.env['GEMINI_API_KEY'];
+      if (apiKey == null || apiKey.isEmpty) {
+        throw ServerException(message: 'GEMINI_API_KEY not found in environment variables');
+      }
+
+      // Use correct Gemini API endpoint
       final response = await _dio.post(
-        '/models/gemini-pro-vision:generateContent', // Placeholder endpoint
+        '/models/gemini-2.5-flash:generateContent?key=$apiKey',
         data: {
           'contents': [
             {
@@ -95,10 +117,35 @@ class GeminiApiClient {
         },
       );
 
-      log('Gemini API Response: ${response.statusCode}');
+      log('=== GEMINI API RESPONSE ===');
+      log('Status Code: ${response.statusCode}');
+      print('=== GEMINI API RESPONSE ===');
+      print('Status Code: ${response.statusCode}');
+      
+      // Log response summary instead of full data to avoid blocking
+      if (response.data != null) {
+        final responseStr = response.data.toString();
+        final responsePreview = responseStr.length > 500 
+            ? '${responseStr.substring(0, 500)}... (truncated)' 
+            : responseStr;
+        log('Response Preview: $responsePreview');
+        print('Response Preview: $responsePreview');
+      }
+      print('===========================');
 
       if (response.statusCode == 200) {
-        return GeminiResponseModel.fromJson(response.data);
+        final model = GeminiResponseModel.fromJson(response.data);
+        log('Parsed model - Food items: ${model.foodItems.length}');
+        print('Parsed model - Food items: ${model.foodItems.length}');
+        
+        // Log food items summary
+        for (var i = 0; i < model.foodItems.length; i++) {
+          final item = model.foodItems[i];
+          log('Food item $i: ${item.name} - Calories: ${item.nutritionData.calories}');
+          print('Food item $i: ${item.name} - Calories: ${item.nutritionData.calories}');
+        }
+        
+        return model;
       } else {
         throw ServerException(
           message: 'API request failed with status: ${response.statusCode}',
@@ -106,6 +153,7 @@ class GeminiApiClient {
       }
     } on DioException catch (e) {
       log('Dio Error: ${e.message}');
+      print('Dio Error: ${e.message}');
       if (e.type == DioExceptionType.connectionTimeout) {
         throw NetworkException(message: 'Connection timeout');
       } else if (e.type == DioExceptionType.receiveTimeout) {
@@ -117,6 +165,7 @@ class GeminiApiClient {
       }
     } catch (e) {
       log('Unexpected error: $e');
+      print('Unexpected error: $e');
       throw ServerException(message: 'Unexpected error occurred');
     }
   }
