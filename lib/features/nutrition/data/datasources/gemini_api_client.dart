@@ -49,8 +49,28 @@ class GeminiApiClient {
       
       // Read image bytes asynchronously
       final imageFile = File(imagePath);
+      if (!await imageFile.exists()) {
+        throw ValidationException(
+          message:
+              'We could not locate the selected photo. Please choose another food photo and try again.',
+        );
+      }
       log('Reading image file...');
-      final imageBytes = await imageFile.readAsBytes();
+      List<int> imageBytes;
+      try {
+        imageBytes = await imageFile.readAsBytes();
+      } on FileSystemException {
+        throw ValidationException(
+          message:
+              'We had trouble reading that photo. Please take a new food photo and try again.',
+        );
+      }
+      if (imageBytes.isEmpty) {
+        throw ValidationException(
+          message:
+              'The selected photo appears to be empty. Please capture a clear photo of your meal and retry.',
+        );
+      }
       log('Image read: ${imageBytes.length} bytes');
       print('Image read: ${imageBytes.length} bytes');
       
@@ -133,34 +153,66 @@ class GeminiApiClient {
       }
       print('===========================');
 
-      if (response.statusCode == 200) {
-        final model = GeminiResponseModel.fromJson(response.data);
-        log('Parsed model - Food items: ${model.foodItems.length}');
-        print('Parsed model - Food items: ${model.foodItems.length}');
-        
-        // Log food items summary
-        for (var i = 0; i < model.foodItems.length; i++) {
-          final item = model.foodItems[i];
-          log('Food item $i: ${item.name} - Calories: ${item.nutritionData.calories}');
-          print('Food item $i: ${item.name} - Calories: ${item.nutritionData.calories}');
-        }
-        
-        return model;
-      } else {
+      if (response.statusCode != 200 || response.data == null) {
         throw ServerException(
-          message: 'API request failed with status: ${response.statusCode}',
+          message:
+              'Food analysis failed with status ${response.statusCode ?? 'unknown'}. Please try again shortly.',
         );
       }
+
+      final model = GeminiResponseModel.fromJson(response.data);
+      log('Parsed model - Food items: ${model.foodItems.length}');
+      print('Parsed model - Food items: ${model.foodItems.length}');
+
+      if (model.foodItems.isEmpty) {
+        throw ValidationException(
+          message:
+              'We could not detect any food in that photo. Please take a clear picture of your meal and try again.',
+        );
+      }
+      
+      // Log food items summary
+      for (var i = 0; i < model.foodItems.length; i++) {
+        final item = model.foodItems[i];
+        log('Food item $i: ${item.name} - Calories: ${item.nutritionData.calories}');
+        print('Food item $i: ${item.name} - Calories: ${item.nutritionData.calories}');
+      }
+      
+      return model;
     } on DioException catch (e) {
       log('Dio Error: ${e.message}');
       print('Dio Error: ${e.message}');
-      if (e.type == DioExceptionType.connectionTimeout) {
-        throw NetworkException(message: 'Connection timeout');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw NetworkException(
+          message: 'The connection timed out. Please check your internet connection and try again.',
+        );
       } else if (e.type == DioExceptionType.receiveTimeout) {
-        throw NetworkException(message: 'Receive timeout');
+        throw NetworkException(
+          message: 'The server took too long to respond. Please try again in a moment.',
+        );
+      } else if (e.type == DioExceptionType.badResponse) {
+        final status = e.response?.statusCode;
+        final message = e.response?.data?['error']?['message'] as String?;
+        throw ServerException(
+          message: message ??
+              'Food analysis failed with status ${status ?? 'unknown'}. Please try again shortly.',
+        );
+      } else if (e.type == DioExceptionType.unknown &&
+          e.error is SocketException) {
+        throw NetworkException(
+          message:
+              'We could not reach the nutrition service. Please check your connection and try again.',
+        );
+      } else if (e.type == DioExceptionType.cancel) {
+        throw NetworkException(
+          message: 'The request was cancelled before it finished.',
+        );
       } else {
         throw ServerException(
-          message: e.response?.data?['error']?['message'] ?? e.message ?? 'Unknown error',
+          message: e.response?.data?['error']?['message'] ??
+              e.message ??
+              'An unexpected server error occurred.',
         );
       }
     } catch (e) {
@@ -247,4 +299,9 @@ class ServerException implements Exception {
 class NetworkException implements Exception {
   final String message;
   NetworkException({required this.message});
+}
+
+class ValidationException implements Exception {
+  final String message;
+  ValidationException({required this.message});
 }

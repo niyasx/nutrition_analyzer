@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nutrition_app/core/theme/design_tokens.dart';
+import 'package:nutrition_app/core/error/failures.dart';
 import 'package:nutrition_app/features/nutrition/presentation/bloc/nutrition_analysis_bloc.dart';
 import 'package:nutrition_app/features/nutrition/presentation/bloc/nutrition_analysis_event.dart';
 import 'package:nutrition_app/features/nutrition/presentation/bloc/nutrition_analysis_state.dart';
@@ -65,8 +66,28 @@ class ResultsPage extends StatelessWidget {
               tablet: _TabletResultsLayout(result: analysisResult),
             );
           } else if (state is NutritionAnalysisError) {
+            final failure = state.failure;
+            String? title;
+            IconData? icon;
+
+            if (failure is ValidationFailure) {
+              title = 'No food detected';
+              icon = Icons.restaurant_outlined;
+            } else if (failure is NetworkFailure) {
+              title = 'Network issue';
+              icon = Icons.wifi_off;
+            } else if (failure is CacheFailure) {
+              title = 'Save failed';
+              icon = Icons.save_outlined;
+            } else {
+              title = 'Analysis unavailable';
+              icon = Icons.cloud_off;
+            }
+
             return CustomErrorWidget(
-              error: state.failure.message,
+              error: failure.message,
+              title: title,
+              icon: icon,
               onRetry: () {
                 context.read<NutritionAnalysisBloc>().add(const ResetAnalysis());
                 context.go('/');

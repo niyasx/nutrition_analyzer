@@ -61,6 +61,9 @@ class NutritionRepositoryImpl implements NutritionRepository {
       );
 
       return Right(result);
+    } on ValidationException catch (e) {
+      log('Validation error: ${e.message}');
+      return Left(ValidationFailure(message: e.message));
     } on ServerException catch (e) {
       log('Server error: ${e.message}');
       return Left(ServerFailure(message: e.message));

@@ -5,12 +5,14 @@ class CustomErrorWidget extends StatelessWidget {
   final String error;
   final VoidCallback? onRetry;
   final IconData? icon;
+  final String? title;
 
   const CustomErrorWidget({
     super.key,
     required this.error,
     this.onRetry,
     this.icon,
+    this.title,
   });
 
   @override
@@ -28,7 +30,7 @@ class CustomErrorWidget extends StatelessWidget {
             ),
             const SizedBox(height: DesignTokens.spaceMD),
             Text(
-              'Oops! Something went wrong',
+              title ?? 'Oops! Something went wrong',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),

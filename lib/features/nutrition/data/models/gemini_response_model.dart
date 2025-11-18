@@ -9,21 +9,27 @@ class GeminiResponseModel {
   factory GeminiResponseModel.fromJson(Map<String, dynamic> json) {
     return GeminiResponseModel(
       candidates: (json['candidates'] as List? ?? [])
-          .map((e) => GeminiCandidate.fromJson(e as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map(GeminiCandidate.fromJson)
           .toList(),
     );
   }
 
   List<FoodItemModel> get foodItems {
     if (candidates.isEmpty) return [];
-    
+
     try {
-      final textContent = candidates.first.content.parts.first.text;
-      final parsedJson = jsonDecode(textContent) as Map<String, dynamic>;
+      final textPart = candidates.first.content.parts
+          .firstWhere((part) => part.text.trim().isNotEmpty, orElse: () => const GeminiPart(text: ''));
+      if (textPart.text.trim().isEmpty) {
+        return [];
+      }
+      final parsedJson = jsonDecode(textPart.text) as Map<String, dynamic>;
       final foodsJson = parsedJson['foods'] as List? ?? [];
-      
+
       return foodsJson
-          .map((foodJson) => FoodItemModel.fromGeminiJson(foodJson as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map(FoodItemModel.fromGeminiJson)
           .toList();
     } catch (e) {
       return [];
@@ -37,8 +43,14 @@ class GeminiCandidate {
   GeminiCandidate({required this.content});
 
   factory GeminiCandidate.fromJson(Map<String, dynamic> json) {
+    final contentJson = json['content'];
+    if (contentJson is Map<String, dynamic>) {
+      return GeminiCandidate(
+        content: GeminiContent.fromJson(contentJson),
+      );
+    }
     return GeminiCandidate(
-      content: GeminiContent.fromJson(json['content'] as Map<String, dynamic>),
+      content: const GeminiContent(parts: []),
     );
   }
 }
@@ -46,12 +58,13 @@ class GeminiCandidate {
 class GeminiContent {
   final List<GeminiPart> parts;
 
-  GeminiContent({required this.parts});
+  const GeminiContent({required this.parts});
 
   factory GeminiContent.fromJson(Map<String, dynamic> json) {
     return GeminiContent(
       parts: (json['parts'] as List? ?? [])
-          .map((e) => GeminiPart.fromJson(e as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map(GeminiPart.fromJson)
           .toList(),
     );
   }
@@ -60,7 +73,7 @@ class GeminiContent {
 class GeminiPart {
   final String text;
 
-  GeminiPart({required this.text});
+  const GeminiPart({required this.text});
 
   factory GeminiPart.fromJson(Map<String, dynamic> json) {
     return GeminiPart(

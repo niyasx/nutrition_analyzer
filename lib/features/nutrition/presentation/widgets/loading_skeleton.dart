@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nutrition_app/core/theme/design_tokens.dart';
 
@@ -12,6 +13,14 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
+  Timer? _stepTimer;
+  int _currentStep = 0;
+
+  static const List<String> _steps = [
+    'Uploading photo',
+    'Analyzing food items',
+    'Preparing nutrition summary',
+  ];
 
   @override
   void initState() {
@@ -24,10 +33,22 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _animationController.repeat(reverse: true);
+
+    _stepTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (!mounted) return;
+      setState(() {
+        if (_currentStep < _steps.length - 1) {
+          _currentStep++;
+        } else {
+          timer.cancel();
+        }
+      });
+    });
   }
 
   @override
   void dispose() {
+    _stepTimer?.cancel();
     _animationController.dispose();
     super.dispose();
   }
@@ -66,6 +87,49 @@ class _LoadingSkeletonState extends State<LoadingSkeleton>
             ),
           ),
           const SizedBox(height: DesignTokens.space2XL),
+
+          // Progress steps
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(_steps.length, (index) {
+              final isCompleted = index < _currentStep;
+              final isActive = index == _currentStep;
+              final Color color = isCompleted || isActive
+                  ? DesignTokens.primaryGreen
+                  : Colors.grey;
+
+              return Padding(
+                padding: const EdgeInsets.only(
+                  bottom: DesignTokens.spaceSM,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isCompleted
+                          ? Icons.check_circle
+                          : isActive
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_unchecked,
+                      color: color,
+                      size: 20,
+                    ),
+                    const SizedBox(width: DesignTokens.spaceSM),
+                    Expanded(
+                      child: Text(
+                        _steps[index],
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: color,
+                              fontWeight:
+                                  isActive ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: DesignTokens.spaceXL),
           
           // Image placeholder
           AnimatedBuilder(
